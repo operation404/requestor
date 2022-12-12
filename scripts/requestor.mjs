@@ -55,10 +55,23 @@ export class REQUESTOR {
 				<footer class="card-footer"> ${footer} </footer>
 			</div>`
 		}
+
+        // Patch to work with DF Chat Enhancements.
+        // DFCE wrapped createChatMessage and looked at the messageData object passed in,
+        // checked if it had a defined "flags" value, copying it if so and if not creating
+        // a new empty object. Since This code below doesn't create a true nested path of
+        // objects but rather one path of literally "flags.requestor.args", that data
+        // gets discarded by the wrapper. By instead actually creating the nested objects
+        // so that the "flags" path resolves, the data is preserved and passed on.
 		
 		// construct message flags.
-		messageData[`flags.${CONSTS.MODULE_NAME}.args`] = args;
-		messageData["flags.core.canPopout"] = true;
+        //messageData[`flags.${CONSTS.MODULE_NAME}.args`] = args;
+        messageData["flags"] = messageData["flags"] ?? {};
+        messageData["flags"][`${CONSTS.MODULE_NAME}`] = messageData["flags"][`${CONSTS.MODULE_NAME}`] ?? {};
+        messageData["flags"][`${CONSTS.MODULE_NAME}`]["args"] = args;
+        //messageData["flags.core.canPopout"] = true;
+        messageData["flags"]["core"] = messageData["flags"]["core"] ?? {};
+        messageData["flags"]["core"]["canPopout"] = true;
 		
 		for(let btnData of args.buttonData ?? []){
 			if(typeof btnData === "string") continue;
